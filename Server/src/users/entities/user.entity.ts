@@ -20,7 +20,7 @@ export class User {
   password: string;
 
   @Column({ default: 'user' })
-  rol: string;
+  role: string;
 
   @DeleteDateColumn() // Se elimina el usuario pero se mantiene en la base de datos para posibles auditorías o restauraciones futuras.
   deletedAt: Date;
