@@ -8,10 +8,7 @@ import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload } from '../types/jwt-payload.type';
-
-interface RequestWithUser extends Request {
-  user: JwtPayload;
-}
+import { RequestWithUser } from '../types/request-with-user.interface';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

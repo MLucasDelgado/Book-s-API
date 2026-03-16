@@ -7,6 +7,7 @@ interface RequestWithUser extends Request {
 }
 
 export const CurrentUser = createParamDecorator(
+  // data permite pasar argumentos al decorator. En este caso no lo necesitamos, pero es una característica útil para otros casos.
   (data: unknown, ctx: ExecutionContext): JwtPayload => {
     const request = ctx.switchToHttp().getRequest<RequestWithUser>();
     return request.user;

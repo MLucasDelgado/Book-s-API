@@ -18,4 +18,17 @@ export class UsersService {
   findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
+
+  async findOneByEmailWithPassword(email: string) {
+    // Este método es utilizado para obtener un usuario por su correo electrónico incluyendo la contraseña aunque se encuentre en false, lo cual es necesario para el proceso de autenticación.
+    return this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.email = :email', { email })
+      .getOne();
+  }
+
+  findOneById(id: string) {
+    return this.userRepository.findOneBy({ id });
+  }
 }
