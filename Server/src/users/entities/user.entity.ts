@@ -7,8 +7,8 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn() // Decorador que indica que esta propiedad es la clave primaria y se generará automáticamente.
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column() // Decorador que indica que esta propiedad es una columna en la base de datos.
   name: string;
@@ -16,7 +16,7 @@ export class User {
   @Column({ unique: true, nullable: false }) // El correo electrónico debe ser único en la base de datos.
   email: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, select: false }) // La contraseña no se selecciona por defecto en las consultas para mayor seguridad.
   password: string;
 
   @Column({ default: 'user' })
