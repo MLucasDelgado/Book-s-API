@@ -8,6 +8,7 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from './types/jwt-payload.type';
 
 @Injectable()
 export class AuthService {
@@ -22,15 +23,20 @@ export class AuthService {
     if (user) {
       throw new BadRequestException('User already exists');
     }
-    return await this.usersService.create({
+    await this.usersService.create({
       name,
       email,
       password: await bcrypt.hash(password, 10), // Hashing de la contraseña utilizando bcrypt con un salt de 10 rondas.
     });
+
+    return {
+      name,
+      email,
+    };
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.usersService.findOneByEmailWithPassword(
+    const user = await this.usersService.findByEmailWithPassword(
       loginDto.email,
     );
 
@@ -52,9 +58,69 @@ export class AuthService {
       role: user.role,
     };
 
-    const token = await this.jwtService.signAsync(payload);
+    // Access token (corto)
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
 
-    return { token };
+    // Refresh token (largo)
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '3d',
+    });
+
+    // guardo el refresh token hasheado en la base de datos para poder invalidarlo en caso de logout o si se sospecha que ha sido comprometido.
+    await this.usersService.update(user.id, {
+      refreshToken: await bcrypt.hash(refreshToken, 10),
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async logout(userId: string) {
+    await this.usersService.update(userId, {
+      refreshToken: null,
+    });
+
+    return { message: 'Logged out' };
+  }
+
+  async refresh(refreshToken: string) {
+    try {
+      const payload =
+        await this.jwtService.verifyAsync<JwtPayload>(refreshToken);
+
+      const user = await this.usersService.findOneById(payload.sub);
+
+      if (!user || !user.refreshToken) {
+        throw new UnauthorizedException();
+      }
+
+      const isValid = await bcrypt.compare(refreshToken, user.refreshToken);
+
+      if (!isValid) {
+        throw new UnauthorizedException();
+      }
+
+      // generar nuevo access token
+      const newAccessToken = await this.jwtService.signAsync(
+        {
+          sub: user.id,
+          role: user.role,
+        },
+        {
+          expiresIn: '15m',
+        },
+      );
+
+      return {
+        accessToken: newAccessToken,
+      };
+    } catch {
+      throw new UnauthorizedException();
+    }
   }
 
   async profile(userId: string) {
