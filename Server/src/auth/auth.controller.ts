@@ -6,7 +6,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
-import { Role } from './enums/rol.enum';
+import { Role } from '../common/enums/rol.enum';
 import type { JwtPayload } from './types/jwt-payload.type';
 
 @Controller('auth')
@@ -28,5 +28,16 @@ export class AuthController {
   @UseGuards(AuthGuard, RolesGuard)
   profile(@CurrentUser() user: JwtPayload) {
     return this.authService.profile(user.sub);
+  }
+
+  @Post('refresh')
+  refresh(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refresh(refreshToken);
+  }
+
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  logout(@CurrentUser() user: JwtPayload) {
+    return this.authService.logout(user.sub);
   }
 }
