@@ -1,7 +1,11 @@
+import { Favorite } from '../../favorite/entity/favorite.entity';
+import { Role } from '../../common/enums/rol.enum';
+
 import {
   Column,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -19,8 +23,22 @@ export class User {
   @Column({ nullable: false, select: false }) // La contraseña no se selecciona por defecto en las consultas para mayor seguridad.
   password: string;
 
-  @Column({ default: 'user' })
-  role: string;
+  @Column({
+    type: 'enum',
+    enum: Role,
+    enumName: 'user_role',
+    default: Role.USER,
+  })
+  role: Role;
+
+  @Column({ type: 'text', nullable: true, select: false })
+  refreshToken: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  profileImage: string | null;
+
+  @OneToMany(() => Favorite, (favorite) => favorite.user)
+  favorites: Favorite[];
 
   @DeleteDateColumn() // Se elimina el usuario pero se mantiene en la base de datos para posibles auditorías o restauraciones futuras.
   deletedAt: Date;
