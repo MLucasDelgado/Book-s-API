@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -19,16 +20,32 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async findOneByEmailWithPassword(email: string) {
-    // Este método es utilizado para obtener un usuario por su correo electrónico incluyendo la contraseña aunque se encuentre en false, lo cual es necesario para el proceso de autenticación.
-    return this.userRepository
-      .createQueryBuilder('user')
-      .addSelect('user.password')
-      .where('user.email = :email', { email })
-      .getOne();
+  async findByEmailWithPassword(email: string) {
+    return this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'name', 'email', 'password', 'role', 'refreshToken'],
+    });
   }
 
   findOneById(id: string) {
     return this.userRepository.findOneBy({ id });
+  }
+
+  findAllUsers() {
+    return this.userRepository.find();
+  }
+
+  async update(id: string, data: Partial<User>) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = this.userRepository.merge(user, data);
+
+    return this.userRepository.save(updatedUser);
   }
 }
