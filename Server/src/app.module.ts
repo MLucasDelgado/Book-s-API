@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { BooksModule } from './books/books.module';
-import { FavoriteModule } from './favorite/favorite.module';
+import { UserBooksModule } from './user-books/user-books.module';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { FavoriteModule } from './favorite/favorite.module';
     AuthModule,
     UsersModule,
     BooksModule,
-    FavoriteModule,
+    UserBooksModule,
   ],
 })
 export class AppModule {}
