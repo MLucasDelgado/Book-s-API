@@ -1,0 +1,6 @@
+export enum UserBookStatus {
+  FAVORITE = 'FAVORITE',
+  WANT_TO_READ = 'WANT_TO_READ',
+  READING = 'READING',
+  READ = 'READ',
+}
