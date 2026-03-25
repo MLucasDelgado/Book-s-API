@@ -73,7 +73,6 @@ export class BooksService {
     const existingBook = await this.bookRepository.findOne({
       where: { id: bookData.id },
     });
-    console.log('Existing book:', existingBook);
 
     if (existingBook) return existingBook;
 
