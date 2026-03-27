@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { UserBook } from '../../user-books/entity/user-books.entity';
+import { Library } from '../../library/entity/library.entity';
 
 @Entity()
 export class Book {
@@ -27,6 +27,6 @@ export class Book {
   @Column({ default: false })
   createdByUser: boolean; // Indica si el libro fue creado por un usuario o proviene de la API de Google Books, si es false viene de la API
 
-  @OneToMany(() => UserBook, (userBook) => userBook.book)
-  userBooks: UserBook[];
+  @OneToMany(() => Library, (library) => library.book)
+  userBooks: Library[];
 }

@@ -7,10 +7,11 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Book } from '../../books/entities/book.entity';
+import { UserBookStatus } from '../enum/library.enum';
 
 @Entity()
 @Unique(['user', 'book']) // Asegura que un usuario no pueda tener el mismo libro con el mismo estado más de una vez
-export class UserBook {
+export class Library {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -28,7 +29,7 @@ export class UserBook {
 
   @Column({
     type: 'enum',
-    enum: ['FAVORITE', 'WANT_TO_READ', 'READING', 'READ'], // Enum para representar el estado del libro para el usuario
+    enum: UserBookStatus, // Enum para representar el estado del libro para el usuario
   })
-  status: string;
+  status: UserBookStatus;
 }

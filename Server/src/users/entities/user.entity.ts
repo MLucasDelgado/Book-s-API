@@ -1,4 +1,4 @@
-import { UserBook } from '../../user-books/entity/user-books.entity';
+import { Library } from '../../library/entity/library.entity';
 import { Role } from '../../common/enums/rol.enum';
 
 import {
@@ -37,9 +37,9 @@ export class User {
   @Column({ type: 'text', nullable: true })
   profileImage: string | null;
 
-  // Esta relación apunta a la propiedad user dentro de UserBook y permite acceder a los libros relacionados con el usuario.
-  @OneToMany(() => UserBook, (userBook) => userBook.user)
-  userBooks: UserBook[];
+  // Esta relación apunta a la propiedad user dentro de Library y permite acceder a los libros relacionados con el usuario.
+  @OneToMany(() => Library, (library) => library.user)
+  userBooks: Library[];
 
   @DeleteDateColumn() // Se elimina el usuario pero se mantiene en la base de datos para posibles auditorías o restauraciones futuras.
   deletedAt: Date;

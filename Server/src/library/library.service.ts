@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserBook } from './entity/user-books.entity';
+import { Library } from './entity/library.entity';
 import { BooksService } from 'src/books/books.service';
 import { CreateBookFromApiDto } from '../common/dto/book.dto';
-import { UserBookStatus } from './enum/userBook.enum';
+import { UserBookStatus } from './enum/library.enum';
 
 @Injectable()
-export class UserBooksService {
+export class LibraryService {
   constructor(
-    @InjectRepository(UserBook)
-    private readonly userBookRepository: Repository<UserBook>,
+    @InjectRepository(Library)
+    private readonly libraryRepository: Repository<Library>,
     private readonly booksService: BooksService,
   ) {}
 
@@ -20,27 +20,30 @@ export class UserBooksService {
     status: UserBookStatus,
   ) {
     const book = await this.booksService.ensureBookExists(bookData);
-    const existing = await this.userBookRepository.findOne({
+    const existing = await this.libraryRepository.findOne({
       where: {
         user: { id: userId },
         book: { id: book.id },
       },
     });
+
     if (existing) {
-      existing.status = status;
-      return this.userBookRepository.save(existing);
+      throw new NotFoundException(
+        `The book is already on the '${existing.status}' list`,
+      );
     }
 
-    const userBook = this.userBookRepository.create({
+    const userBook = this.libraryRepository.create({
       user: { id: userId },
       book: { id: book.id },
       status,
     });
-    return this.userBookRepository.save(userBook);
+
+    return this.libraryRepository.save(userBook);
   }
 
   async getUserBooksByStatus(userId: string, status: UserBookStatus) {
-    const userBooks = await this.userBookRepository.find({
+    const userBooks = await this.libraryRepository.find({
       where: { user: { id: userId }, status }, // Estoy filtrando por una relación y el estado
       relations: ['book'],
     });
@@ -50,7 +53,7 @@ export class UserBooksService {
   }
 
   async removeUserBook(bookId: string, userId: string) {
-    const result = await this.userBookRepository.delete({
+    const result = await this.libraryRepository.delete({
       user: { id: userId },
       book: { id: bookId },
     });
@@ -60,5 +63,22 @@ export class UserBooksService {
     }
 
     return { message: 'Deleted successfully' };
+  }
+
+  async updateUserBookStatus(
+    bookId: string,
+    userId: string,
+    status: UserBookStatus,
+  ) {
+    const userBook = await this.libraryRepository.findOne({
+      where: { user: { id: userId }, book: { id: bookId } },
+    });
+
+    if (!userBook) {
+      throw new NotFoundException('User book not found');
+    }
+
+    userBook.status = status;
+    return this.libraryRepository.save(userBook);
   }
 }

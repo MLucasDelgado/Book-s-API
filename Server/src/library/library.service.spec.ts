@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FavoriteService } from './user-books.service';
+import { FavoriteService } from './library.service';
 
 describe('FavoriteService', () => {
   let service: FavoriteService;
