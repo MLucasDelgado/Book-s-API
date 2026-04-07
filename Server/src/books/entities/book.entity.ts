@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { Library } from '../../library/entity/library.entity';
+import { Review } from '../../reviews/entity/review.entity';
 
 @Entity()
 export class Book {
@@ -29,4 +30,7 @@ export class Book {
 
   @OneToMany(() => Library, (library) => library.book)
   userBooks: Library[];
+
+  @OneToMany(() => Review, (review) => review.book)
+  reviews: Review[];
 }
