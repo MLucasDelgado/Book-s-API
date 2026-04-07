@@ -8,6 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Review } from '../../reviews/entity/review.entity';
 
 @Entity()
 export class User {
@@ -40,6 +41,9 @@ export class User {
   // Esta relación apunta a la propiedad user dentro de Library y permite acceder a los libros relacionados con el usuario.
   @OneToMany(() => Library, (library) => library.user)
   userBooks: Library[];
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
 
   @DeleteDateColumn() // Se elimina el usuario pero se mantiene en la base de datos para posibles auditorías o restauraciones futuras.
   deletedAt: Date;
