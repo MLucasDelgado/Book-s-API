@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Library } from './entity/library.entity';
-import { BooksService } from 'src/books/books.service';
+import { BooksService } from '../books/books.service';
 import { CreateBookFromApiDto } from '../common/dto/book.dto';
 import { UserBookStatus } from './enum/library.enum';
 
