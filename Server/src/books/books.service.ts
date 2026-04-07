@@ -87,4 +87,15 @@ export class BooksService {
 
     return newBook;
   }
+
+  async updateBookRating(
+    bookId: string,
+    averageRating: number,
+    reviewsCount: number,
+  ) {
+    await this.bookRepository.update(bookId, {
+      rating: averageRating,
+      reviewsCount: reviewsCount,
+    });
+  }
 }
