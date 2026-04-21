@@ -1,5 +1,5 @@
-import { Library } from '../../library/entity/library.entity';
-import { Role } from '../../common/enums/rol.enum';
+import { Library } from '@/library/entity/library.entity';
+import { Role } from '@/common/enums/rol.enum';
 
 import {
   Column,
