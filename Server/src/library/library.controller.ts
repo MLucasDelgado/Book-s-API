@@ -9,13 +9,13 @@ import {
   ParseEnumPipe,
   Patch,
 } from '@nestjs/common';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { AuthGuard } from '../auth/guards/auth.guard';
+import { CurrentUser } from '@/auth/decorators/current-user.decorator';
+import { AuthGuard } from '@/auth/guards/auth.guard';
 import { LibraryService } from './library.service';
-import { Role } from 'src/common/enums/rol.enum';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import type { JwtPayload } from '../auth/types/jwt-payload.type';
+import { Role } from '@/common/enums/rol.enum';
+import { Roles } from '@/auth/decorators/roles.decorator';
+import { RolesGuard } from '@/auth/guards/roles.guard';
+import type { JwtPayload } from '@/auth/types/jwt-payload.type';
 import { CreateUserBookDto } from './dto/book-status.dto';
 import { UserBookStatus } from './enum/library.enum';
 

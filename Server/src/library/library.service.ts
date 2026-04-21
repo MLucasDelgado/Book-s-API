@@ -1,9 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Library } from './entity/library.entity';
-import { BooksService } from '../books/books.service';
-import { CreateBookFromApiDto } from '../common/dto/book.dto';
+import { BooksService } from '@/books/books.service';
+import { CreateBookDto } from '@/books/dto/book.dto';
 import { UserBookStatus } from './enum/library.enum';
 
 @Injectable()
@@ -15,7 +19,7 @@ export class LibraryService {
   ) {}
 
   async addUserBook(
-    bookData: CreateBookFromApiDto,
+    bookData: CreateBookDto,
     userId: string,
     status: UserBookStatus,
   ) {
@@ -28,8 +32,8 @@ export class LibraryService {
     });
 
     if (existing) {
-      throw new NotFoundException(
-        `The book is already on the '${existing.status}' list`,
+      throw new BadRequestException(
+        `The book is already in '${existing.status}' list`,
       );
     }
 
@@ -70,15 +74,15 @@ export class LibraryService {
     userId: string,
     status: UserBookStatus,
   ) {
-    const userBook = await this.libraryRepository.findOne({
-      where: { user: { id: userId }, book: { id: bookId } },
-    });
+    const result = await this.libraryRepository.update(
+      { user: { id: userId }, book: { id: bookId } },
+      { status },
+    );
 
-    if (!userBook) {
+    if (result.affected === 0) {
       throw new NotFoundException('User book not found');
     }
 
-    userBook.status = status;
-    return this.libraryRepository.save(userBook);
+    return { message: 'Updated successfully' };
   }
 }

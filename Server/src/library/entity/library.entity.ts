@@ -5,8 +5,8 @@ import {
   Column,
   Unique,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Book } from '../../books/entities/book.entity';
+import { User } from '@/users/entities/user.entity';
+import { Book } from '@/books/entities/book.entity';
 import { UserBookStatus } from '../enum/library.enum';
 
 @Entity()

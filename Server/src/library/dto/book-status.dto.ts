@@ -1,8 +1,8 @@
 import { IsEnum } from 'class-validator';
 import { UserBookStatus } from '../enum/library.enum';
-import { CreateBookFromApiDto } from '../../common/dto/book.dto';
+import { CreateBookDto } from '@/books/dto/book.dto';
 
-export class CreateUserBookDto extends CreateBookFromApiDto {
+export class CreateUserBookDto extends CreateBookDto {
   @IsEnum(UserBookStatus)
   status: UserBookStatus;
 }
