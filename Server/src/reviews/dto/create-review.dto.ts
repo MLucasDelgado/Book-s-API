@@ -1,7 +1,7 @@
 import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
-import { CreateBookFromApiDto } from '../../common/dto/book.dto';
+import { CreateBookDto } from '@/books/dto/book.dto';
 
-export class CreateReviewDto extends CreateBookFromApiDto {
+export class CreateReviewDto extends CreateBookDto {
   @IsInt()
   @Min(1)
   @Max(5)
