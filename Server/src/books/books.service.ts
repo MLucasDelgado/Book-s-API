@@ -1,11 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import axios from 'axios';
-import { GoogleBook } from './type/type-books';
-import { GoogleBooksResponse } from './type/type-books';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './entities/book.entity';
-import { CreateBookFromApiDto } from '../common/dto/book.dto';
+import { CreateBookDto } from '@/books/dto/book.dto';
+import { normalizeAuthors } from './utils/normalizeAuthors';
 
 @Injectable()
 export class BooksService {
@@ -14,75 +12,45 @@ export class BooksService {
     private readonly bookRepository: Repository<Book>,
   ) {}
 
-  private readonly apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+  // Si el usuario intenta crear un libro que ya existe, simplemente devuelve el libro existente en lugar de crear uno nuevo
+  async create(createBookDto: CreateBookDto) {
+    const normalizedAuthors = normalizeAuthors(createBookDto.authors);
 
-  async getBooks() {
-    const categories = [
-      'romance',
-      'fiction',
-      'action',
-      'science fiction',
-      'fantasy',
-      'horror',
-      'self improvement',
-      'mystery',
-      'thriller',
-      'adventure',
-      'biography',
-      'history',
-      'philosophy',
-      'psychology',
-      'business',
-    ];
-
-    const promises = categories.map((category) =>
-      axios.get<GoogleBooksResponse>(
-        'https://www.googleapis.com/books/v1/volumes',
-        {
-          params: {
-            q: category,
-            maxResults: 10,
-            key: this.apiKey,
-          },
-        },
-      ),
-    );
-
-    const results = await Promise.all(promises); // Espera a que todas las solicitudes se completen y devuelve un array de respuestas
-
-    const booksByCategory = {}; // { fiction: [...], romance: [...] }
-
-    categories.forEach((category, index) => {
-      booksByCategory[category] = results[index].data.items.map(
-        (book: GoogleBook) => ({
-          id: book.id,
-          title: book.volumeInfo.title,
-          authors: book.volumeInfo.authors,
-          thumbnail:
-            book.volumeInfo.imageLinks?.thumbnail
-              ?.replace('http://', 'https://')
-              ?.replace('zoom=1', 'zoom=2') || null,
-        }),
-      );
+    const exists = await this.bookRepository.findOne({
+      where: {
+        title: createBookDto.title,
+        normalizedAuthors: normalizedAuthors,
+      },
     });
 
-    return booksByCategory;
+    if (exists) return exists;
+
+    const book = this.bookRepository.create({
+      ...createBookDto,
+      normalizedAuthors,
+    });
+
+    return this.bookRepository.save(book);
   }
 
-  async ensureBookExists(bookData: CreateBookFromApiDto) {
+  async getBooks() {
+    return this.bookRepository.find();
+  }
+
+  async ensureBookExists(bookData: CreateBookDto) {
+    const normalizedAuthors = normalizeAuthors(bookData.authors);
+
     const existingBook = await this.bookRepository.findOne({
-      where: { id: bookData.id },
+      where: { title: bookData.title, normalizedAuthors: normalizedAuthors },
     });
 
     if (existingBook) return existingBook;
 
     const newBook = this.bookRepository.create({
-      id: bookData.id,
-      title: bookData.title,
-      authors: bookData.authors,
-      thumbnail: bookData.thumbnail,
-      createdByUser: false, // Indica que este libro proviene de la API de Google Books
+      ...bookData,
+      normalizedAuthors,
     });
+
     await this.bookRepository.save(newBook);
 
     return newBook;
@@ -97,5 +65,20 @@ export class BooksService {
       rating: averageRating,
       reviewsCount: reviewsCount,
     });
+  }
+
+  async getBookById(id: string) {
+    const book = await this.bookRepository.findOne({
+      where: { id: id },
+    });
+
+    if (!book) {
+      throw new NotFoundException('Book not found');
+    }
+
+    book.views += 1;
+    await this.bookRepository.save(book);
+
+    return book;
   }
 }
