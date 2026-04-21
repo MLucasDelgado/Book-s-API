@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Review } from './entity/review.entity';
-import { BooksService } from '../books/books.service';
-import { CreateBookFromApiDto } from 'src/common/dto/book.dto';
+import { BooksService } from '@/books/books.service';
+import { CreateBookDto } from '@/books/dto/book.dto';
 
 @Injectable()
 export class ReviewsService {
@@ -15,7 +15,7 @@ export class ReviewsService {
 
   async addReviewOrUpdate(
     userId: string,
-    bookData: CreateBookFromApiDto,
+    bookData: CreateBookDto,
     rating: number,
     comment?: string,
   ) {
@@ -55,5 +55,24 @@ export class ReviewsService {
         : 0;
 
     await this.booksService.updateBookRating(bookId, avg, reviews.length);
+  }
+
+  async getReviewsByBook(bookId: string) {
+    return this.reviewRepository.find({
+      where: { book: { id: bookId } },
+      relations: ['user'],
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        createdAt: true,
+        user: {
+          id: true,
+          name: true,
+          profileImage: true,
+        },
+      },
+      order: { createdAt: 'DESC' },
+    });
   }
 }
