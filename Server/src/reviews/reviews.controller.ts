@@ -1,12 +1,12 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
-import type { JwtPayload } from '../auth/types/jwt-payload.type';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { JwtPayload } from '@/auth/types/jwt-payload.type';
+import { CurrentUser } from '@/auth/decorators/current-user.decorator';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewsService } from './reviews.service';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Role } from 'src/common/enums/rol.enum';
+import { RolesGuard } from '@/auth/guards/roles.guard';
+import { AuthGuard } from '@/auth/guards/auth.guard';
+import { Roles } from '@/auth/decorators/roles.decorator';
+import { Role } from '@/common/enums/rol.enum';
 
 @Controller('reviews')
 export class ReviewsController {
