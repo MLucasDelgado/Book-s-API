@@ -6,7 +6,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from './guards/roles.guard';
-import { Role } from '../common/enums/rol.enum';
+import { Role } from '@/common/enums/rol.enum';
 import type { JwtPayload } from './types/jwt-payload.type';
 
 @Controller('auth')
