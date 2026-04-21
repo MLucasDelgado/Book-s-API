@@ -1,20 +1,30 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { Library } from '../../library/entity/library.entity';
-import { Review } from '../../reviews/entity/review.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Library } from '@/library/entity/library.entity';
+import { Review } from '@/reviews/entity/review.entity';
 
 @Entity()
 export class Book {
-  @PrimaryColumn() // El ID del libro se obtiene directamente de la API de Google Books, por lo que no se genera automáticamente.
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   title: string;
 
-  @Column('text', { array: true, nullable: true }) // Autores como array porque puede haber varios autores
+  @Column('text', { array: true, nullable: true })
   authors: string[];
+
+  // Normalizamos los autores para facilitar la búsqueda y evitar duplicados (por ejemplo, "J.K. Rowling" y "J. K. Rowling" se considerarían el mismo autor)
+  @Column()
+  normalizedAuthors: string;
 
   @Column({ nullable: true }) // La miniatura puede no estar disponible para algunos libros
   thumbnail: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column('text', { array: true, nullable: true })
+  categories: string[];
 
   @Column({ default: 0 })
   views: number;
@@ -26,7 +36,7 @@ export class Book {
   reviewsCount: number;
 
   @Column({ default: false })
-  createdByUser: boolean; // Indica si el libro fue creado por un usuario o proviene de la API de Google Books, si es false viene de la API
+  createdByUser: boolean;
 
   @OneToMany(() => Library, (library) => library.book)
   userBooks: Library[];
