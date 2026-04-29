@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, CreateDateColumn  } from 'typeorm';
 import { Library } from '@/library/entity/library.entity';
 import { Review } from '@/reviews/entity/review.entity';
 
@@ -37,6 +37,9 @@ export class Book {
 
   @Column({ default: false })
   createdByUser: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(() => Library, (library) => library.book)
   userBooks: Library[];
