@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository, MoreThan } from 'typeorm';
 import { Book } from './entities/book.entity';
 import { CreateBookDto } from '@/books/dto/book.dto';
 import { normalizeAuthors } from './utils/normalizeAuthors';
@@ -80,5 +80,57 @@ export class BooksService {
     await this.bookRepository.save(book);
 
     return book;
+  }
+
+  async searchBook(query: string) {
+    if (!query || query.trim() === '') return [];
+
+    const books = await this.bookRepository.find({
+      where: [
+        { title: ILike(`%${query}%`) },
+        { normalizedAuthors: ILike(`%${query}%`) },
+      ],
+    });
+
+    if (books.length === 0) {
+      throw new NotFoundException('No books found');
+    }
+
+    return books;
+  }
+
+  async getPopularBooks(limit: number = 10) {
+    return this.bookRepository.find({
+      where: {
+        views: MoreThan(0), // para que no me traiga basura
+      },
+      order: {
+        views: 'DESC',
+      },
+      take: limit, // limita la cantidad (tipo carrusel)
+    });
+  }
+
+  async getRatedBooks(limit: number = 10) {
+    return this.bookRepository.find({
+      where: {
+        rating: MoreThan(0),
+        reviewsCount: MoreThan(5),
+      },
+      order: {
+        rating: 'DESC',
+        reviewsCount: 'DESC',
+      },
+      take: limit,
+    });
+  }
+
+  async getNewBooks(limit: number = 10) {
+    return this.bookRepository.find({
+      order: {
+        createdAt: 'DESC'
+      },
+      take: limit,
+    })
   }
 }
