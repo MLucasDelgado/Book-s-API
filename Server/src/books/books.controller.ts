@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from '@/books/dto/book.dto';
 import { AuthGuard } from '@/auth/guards/auth.guard';
@@ -20,5 +20,25 @@ export class BooksController {
   @Get()
   getBooks() {
     return this.booksService.getBooks();
+  }
+
+  @Get('/search')
+  getSearchedBook(@Query('query') query: string) {
+    return this.booksService.searchBook(query);
+  }
+
+  @Get('/popular')
+  getPopularBooks() {
+    return this.booksService.getPopularBooks();
+  }
+
+  @Get('/top-rated')
+  getRatedBooks() {
+    return this.booksService.getRatedBooks();
+  }
+
+  @Get('/new')
+  getNewBooks() {
+    return this.booksService.getNewBooks();
   }
 }
