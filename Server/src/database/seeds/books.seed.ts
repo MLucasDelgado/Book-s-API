@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Book } from '@/books/entities/book.entity';
+import { normalizeAuthors } from '@/books/utils/normalizeAuthors';
 
 export async function seedBooks(dataSource: DataSource) {
   const repo = dataSource.getRepository(Book);
@@ -72,12 +73,12 @@ export async function seedBooks(dataSource: DataSource) {
       categories: ['science fiction'],
     },
     {
-      title: '1984',
-      authors: ['George Orwell'],
+      title: 'Foundation',
+      authors: ['Isaac Asimov'],
       thumbnail:
-        'https://i.pinimg.com/736x/80/e6/b2/80e6b2fa3643c844f0a2cc5ac13b934b.jpg',
+        'https://i.pinimg.com/736x/51/74/38/517438780ab6f2ad55b4ee48ce844aae.jpg',
       description:
-        '1984, de George Orwell, es una novela distópica ambientada en un Londres totalitario donde el "Partido" y el Gran Hermano ejercen vigilancia constante. Winston Smith, funcionario que reescribe la historia, inicia una rebelión silenciosa contra el régimen, buscando amor y libertad junto a Julia, enfrentándose a la opresión del pensamiento.',
+        'Foundation, de Isaac Asimov, es una obra clásica de ciencia ficción que narra la caída y el renacimiento de un vasto imperio galáctico. Hari Seldon, un matemático, desarrolla la psicohistoria, una ciencia capaz de predecir el futuro de grandes masas, y crea la Fundación para preservar el conocimiento y acortar la edad oscura que se avecina.',
       categories: ['science fiction'],
     },
     {
@@ -354,13 +355,19 @@ export async function seedBooks(dataSource: DataSource) {
   ];
 
   for (const bookData of books) {
+    const normalizedAuthors = normalizeAuthors(bookData.authors);
+
     const exists = await repo.findOne({
-      where: { title: bookData.title },
+      where: {
+        title: bookData.title,
+        normalizedAuthors,
+      },
     });
 
     if (!exists) {
       const book = repo.create({
         ...bookData,
+        normalizedAuthors,
         createdByUser: false,
       });
 
